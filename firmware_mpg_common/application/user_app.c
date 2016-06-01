@@ -88,8 +88,12 @@ Promises:
 */
 void UserAppInitialize(void)
 {
-  /*Test comment for GitHub */
+    /* Start with red LED on 100%, green and blue off */
+  LedPWM(LCD_RED, LED_PWM_100);
+  LedPWM(LCD_GREEN, LED_PWM_0);
+  LedPWM(LCD_BLUE, LED_PWM_0);
   /* If good initialization, set state to Idle */
+
   if( 1 )
   {
     UserApp_StateMachine = UserAppSM_Idle;
@@ -137,7 +141,79 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
+   static LedNumberType aeCurrentLed[]  = {WHITE,PURPLE,BLUE,CYAN,GREEN,YELLOW,ORANGE,RED};
+   static bool abLedRateIncreasing[]={TRUE,FALSE};
+   static bool u8counter[]={TRUE,FALSE};
+   static u8 u8CurrentRate  = 0;
+   static u16 u16frequency=500;
+   static u8 u8currentfrequency=0;
+   static u8 u8LedCurrent  = 0;
+   static u16 u16BlinkCount=0;
+   u16BlinkCount++;
+  /* Check for update color every COLOR_CYCLE_TIME ms */
+  if(abLedRateIncreasing[u8CurrentRate])
+  {
+     LedOn(aeCurrentLed[u8LedCurrent]);
+
+      if(u16BlinkCount==u16frequency)
+      {
+        u8LedCurrent++;
+      u16BlinkCount=0;
+      if(abLedRateIncreasing[u8currentfrequency])
+      {
+        u16frequency=u16frequency-10;
+      }
+      else if(!abLedRateIncreasing[u8currentfrequency])
+      {
+        u16frequency=u16frequency+10;
+      }
+      
+      LedOn(aeCurrentLed[u8LedCurrent]);
+     LedOff(aeCurrentLed[u8LedCurrent-1]);
+        if(u8LedCurrent==7)
+      {      
+        u8CurrentRate++;
+      } 
+      if(u16frequency==10)        
+      {
+        u8currentfrequency++;
+      }
+    }     
+  }
+  else 
+  {          
+        if(u16BlinkCount==u16frequency)
+        {
+          u8LedCurrent--;
+          u16BlinkCount=0;  
+        if(abLedRateIncreasing[u8currentfrequency])
+      {
+        u16frequency=u16frequency-10;
+      }
+      else if(!abLedRateIncreasing[u8currentfrequency])
+      {
+        u16frequency=u16frequency+10;
+      }
+          LedOn(aeCurrentLed[u8LedCurrent]);
+          LedOff(aeCurrentLed[u8LedCurrent+1]);         
+          if(u8LedCurrent==0)
+        {
+          u8CurrentRate--;
+        } 
+          if(u16frequency==500)
+          {
+           u8currentfrequency--;
+          }
+          
+      }
+
+  }
     
+
+    /* Update the current level based on which way it's headed */
+    /* Update the current level based on which way it's headed */
+  
+ 
 } /* end UserAppSM_Idle() */
      
 
