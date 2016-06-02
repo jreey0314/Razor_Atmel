@@ -58,10 +58,11 @@ Global variable definitions with scope limited to this local application.
 Variable names shall start with "UserApp_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp_StateMachine;            /* The state machine function pointer */
-static u32 UserApp_u32Timeout;                      /* Timeout counter used across states */
+static u32 UserApp_u32Timeout;                      /* Timeout counter used across states */ static u16 u16Counter=0;
 
 
-/**********************************************************************************************************************
+
+/******************************t****************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
 
@@ -88,6 +89,7 @@ Promises:
 */
 void UserAppInitialize(void)
 {
+  PWMAudioSetFrequency(BUZZER1, 50);
   /*Test comment for GitHub */
   /* If good initialization, set state to Idle */
   if( 1 )
@@ -99,6 +101,7 @@ void UserAppInitialize(void)
     /* The task isn't properly initialized, so shut it down and don't run */
     UserApp_StateMachine = UserAppSM_FailedInit;
   }
+  
 
 } /* end UserAppInitialize() */
 
@@ -137,8 +140,30 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
+ 
+  static u16 u16frequency[]={330,294,262,294,330,330,330,294,294,294,330,392,392,330,294,262,294,330,330,330,330,294,294,330,294,262};
+  static u16 u16Counter=0;
+  static u16 i=0;
+  u16Counter++;
+ PWMAudioSetFrequency(BUZZER1,u16frequency[i]);
+        PWMAudioOn(BUZZER1);
+    if(u16Counter==500)
+      {
+        i++;
+        if(i==25)
+        {
+          i=0;
+        }
+       
+        u16Counter=0;
+      }
     
-} /* end UserAppSM_Idle() */
+  
+
+}
+  
+    
+ /* end UserAppSM_Idle() */
      
 
 /*-------------------------------------------------------------------------------------------------------------------*/
