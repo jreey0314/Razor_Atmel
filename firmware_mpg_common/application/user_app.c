@@ -157,9 +157,6 @@ static void UserAppSM_Idle(void)
        
         u16Counter=0;
       }
-    
-  
-
 }
   
     
