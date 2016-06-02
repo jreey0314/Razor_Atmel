@@ -88,6 +88,14 @@ Promises:
 */
 void UserAppInitialize(void)
 {
+  LedOff(WHITE);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);
   /*Test comment for GitHub */
   /* If good initialization, set state to Idle */
   if( 1 )
@@ -137,6 +145,52 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
+  static u8 u8YellowBlink=0;
+  static LedNumberType LEDFREQUENCY[]  = {LED_1HZ,LED_2HZ,LED_4HZ,LED_8HZ};
+    if( IsButtonPressed( BUTTON1 ))
+    {
+      /*if BUTTON0 is pressed,then turn on WHITELED*/
+      LedOn(PURPLE);
+    }
+    else
+    {
+      /*The BUTTON is not pressed,so make sure WHITE LED is off*/
+      LedOff(PURPLE);
+    }
+      if( IsButtonPressed( BUTTON2 ))
+    {
+      /*if BUTTON0 is pressed,then turn on WHITELED*/
+      LedOn(BLUE);
+    }
+    else
+    {
+      /*The BUTTON is not pressed,so make sure WHITE LED is off*/
+      LedOff(BLUE);
+    }
+    
+    
+    if( WasButtonPressed( BUTTON0 ))
+    {
+       ButtonAcknowledge(BUTTON0); 
+       LedBlink(YELLOW,LEDFREQUENCY[u8YellowBlink]);
+      u8YellowBlink++;
+      if(u8YellowBlink==4)
+      {
+        u8YellowBlink=0;
+      }
+     
+    }
+  
+    
+    
+    if(IsButtonHeld(BUTTON3,2000))
+    {
+      LedOn(CYAN);
+    }
+    else
+    {
+      LedOff(CYAN);
+    }
     
 } /* end UserAppSM_Idle() */
      
