@@ -88,6 +88,19 @@ Promises:
 */
 void UserAppInitialize(void)
 {
+   u8 u8String[]="An exampe string with next line.\n\r";
+  u8 u8String2[]="Here's a number:";
+  u8 u8String3[]="The 'cursor' was here."  ;
+  u32 u32Number=1234567;
+  
+  DebugPrintf(u8String);
+  DebugPrintf(u8String2);
+  DebugPrintNumber(u32Number);
+  DebugPrintf(u8String3);
+  DebugLineFeed();
+  DebugPrintf(u8String3);
+  DebugLineFeed();
+  
   /*Test comment for GitHub */
   /* If good initialization, set state to Idle */
    LedOff(WHITE);
@@ -167,8 +180,6 @@ static void UserAppSM_Idle(void)
       /*The BUTTON is not pressed,so make sure WHITE LED is off*/
       LedOff(BLUE);
     }
-    
-    
     if( WasButtonPressed( BUTTON0 ))
     {
        ButtonAcknowledge(BUTTON0); 
@@ -180,9 +191,6 @@ static void UserAppSM_Idle(void)
       }
      
     }
-  
-    
-    
     if(IsButtonHeld(BUTTON3,2000))
     {
       LedOn(CYAN);
@@ -192,8 +200,6 @@ static void UserAppSM_Idle(void)
       LedOff(CYAN);
     }  
 } /* end UserAppSM_Idle() */
-     
-
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
 static void UserAppSM_Error(void)          
