@@ -59,7 +59,7 @@ Variable names shall start with "UserApp_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp_StateMachine;            /* The state machine function pointer */
 static u32 UserApp_u32Timeout;                      /* Timeout counter used across states */
-
+static u8 au8UserInputBuffer[USER_INPUT_BUFFER_SIZE];
 
 /**********************************************************************************************************************
 Function Definitions
@@ -88,6 +88,13 @@ Promises:
 */
 void UserAppInitialize(void)
 {
+  
+   u8 au8Message[] = "A3.Shang Liu";
+  LCDMessage(LINE1_START_ADDR, au8Message);
+  LedPWM(LCD_RED, LED_PWM_100);
+  au8UserInputBuffer[0] = 0;
+  
+  
   /*Test comment for GitHub */
   /* If good initialization, set state to Idle */
   if( 1 )
@@ -137,6 +144,16 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
+  static u8 u8CharCount=0;
+ 
+  au8UserInputBuffer[u8i+1] = 0;
+  DebugPrintf(&au8UserInputBuffer[u8CharCount]);
+  u8CharCount = u8CharCount+DebugScanf(au8UserInputBuffer);
+  
+  
+  
+  
+  
     
 } /* end UserAppSM_Idle() */
      
