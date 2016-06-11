@@ -130,27 +130,45 @@ void UserAppRunActiveState(void)
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
-
-
-/**********************************************************************************************************************
-State Machine Function Definitions
-**********************************************************************************************************************/
-
-/*-------------------------------------------------------------------------------------------------------------------*/
+#define doo 261
+#define re 293
+#define mi 329
+#define fa 349
+#define so 392
+#define la 440
+#define si 493
+#define dooo 261*2
+#define ree 293*2
+#define mii 329*2
+#define faa 349*2
+#define soo 392*2
+#define loot 30
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
  
-  static u16 u16frequency[]={330,294,262,294,330,330,330,294,294,294,330,392,392,330,294,262,294,330,330,330,330,294,294,330,294,262};
+	static u32 u32frequency[]={so,so,mii,mii,ree,dooo,dooo,dooo,ree,ree,mii,
+mii,so,so,ree,ree,mii,mii,mii,mii,so,so,ree,ree,mii,mii,loot,loot,ree,ree,ree,ree,mii,
+faa,faa,faa,mii,mii,ree,ree,si,si,dooo,dooo,mi,mi,la,la,dooo,dooo,mi,mi,la,la,si,si,
+	loot,loot,si,si,si,si,mii,soo,soo,soo,mii,mii,dooo,dooo,si,si,
+	la,la,faa,faa,loot,loot,soo,soo,faa,faa,mii,mii,so,so,mii,mii,loot,loot,faa,faa,
+mii,mii,dooo,dooo,faa,faa,ree,ree,loot,loot,ree,ree,dooo,dooo,mii,mii,
+	loot,loot,ree,ree,dooo,dooo,mii,mii,mii,mii,ree,ree,dooo,dooo,dooo,dooo};
   static u16 u16Counter=0;
+  static u16 u16pause=1;
   static u16 i=0;
   u16Counter++;
- PWMAudioSetFrequency(BUZZER1,u16frequency[i]);
+ PWMAudioSetFrequency(BUZZER1,u32frequency[i]);
         PWMAudioOn(BUZZER1);
+	if(u16Counter==450&&(u16pause%2==0|u16pause==5|u16pause==33|u16pause==65|u16pause==77|u16pause==89|u16pause==101))
+	{
+		PWMAudioOff(BUZZER1);
+	}
     if(u16Counter==500)
       {
         i++;
-        if(i==25)
+		u16pause++;
+        if(i==125)
         {
           i=0;
         }
