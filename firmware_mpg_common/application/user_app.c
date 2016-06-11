@@ -97,9 +97,9 @@ Variable names shall start with "UserApp_" and be declared as static.
 static fnCode_type UserApp_StateMachine;            /* The state machine function pointer */
 static u32 UserApp_u32Timeout;                      /* Timeout counter used across states */
 static u8 au8UserInputBuffer[USER_INPUT_BUFFER_SIZE];
-static u8 TopMessage[]="A3.Shang Liu";
-static u8 u8myname[]="shang";
-static u8 u8MYNAME[]="SHANG";
+static u8 TopMessage[]="Shang Liu";
+static u8 u8myname[]="loves tangxiaonan";
+static u8 u8MYNAME[]="LOVES TANGXIAONAN";
 static u8 u8NameBuffer[200];
 static u8 u8CharacterNumberClear[]="\r\nCharacter Count Cleared!\r\n";
 
@@ -230,7 +230,7 @@ static void UserAppSM_Idle(void)
         u8NameBuffer[u8j]=au8UserInputBuffer[0];
         u8j++;
         u8k++;
-        if(u8k==5)
+        if(u8k==17)
         {
           u8k=0;
           G_u8NameCounter++;

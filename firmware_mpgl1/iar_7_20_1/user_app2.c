@@ -138,20 +138,36 @@ static void UserApp2SM_Idle(void)
 {
   if(G_u32UserAppFlag==1)
   {
-    LedBlink(PURPLE,LED_2HZ); 
+     
+    LedBlink(RED,LED_8HZ); 
+    LedBlink(ORANGE,LED_4HZ);
+    LedBlink(YELLOW,LED_2HZ); 
+    LedBlink(GREEN,LED_1HZ);
+    LedBlink(CYAN,LED_1HZ);
+    LedBlink(BLUE,LED_2HZ); 
+    LedBlink(PURPLE,LED_4HZ); 
+    LedBlink(WHITE,LED_8HZ);
     DebugPrintNumber(G_u8NameCounter);
     DebugLineFeed();
     G_u32UserAppFlag=0;
   }
   if(G_u32UserAppFlags==1)
   {
-  LedOn(WHITE);
+ 
   u16TimeCounter++;
   if(u16TimeCounter==5000)
   {
-    LedOff(WHITE);
+    
     G_u32UserAppFlags=0;
     LedOff(PURPLE);
+    LedOff(RED); 
+    LedOff(ORANGE);
+    LedOff(YELLOW); 
+    LedOff(GREEN);
+    LedOff(CYAN);
+    LedOff(BLUE); 
+    LedOff(PURPLE); 
+    LedOff(WHITE);
     u16TimeCounter=0;
  
   }
