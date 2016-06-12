@@ -58,8 +58,9 @@ static void UserAppSM_Idle(void);
 
 static void UserAppSM_Error(void);         
 static void UserAppSM_FailedInit(void);        
-
-
+static void UserAppSM_WaitChannelClose();
+static void UserAppSM_ChannelOpen(void)£»
+static void UserAppSM_WaitChannelOpen(void);
 #endif /* __USER_APP_H */
 
 
