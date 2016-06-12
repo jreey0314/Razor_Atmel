@@ -95,6 +95,15 @@ Promises:
 */
 void UserAppInitialize(void)
 {
+   /* All discrete LEDs to off */
+  LedOff(WHITE);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);
   /*Test comment for GitHub */
   /* If good initialization, set state to Idle */
  /* Configure ANT for this application */
@@ -240,24 +249,23 @@ static void UserAppSM_ChannelOpen(void)
          u8TempString[2 * i]     = HexToASCIICharUpper(G_au8AntApiCurrentData[i] / 16);
          u8TempString[2 * i + 1] = HexToASCIICharUpper(G_au8AntApiCurrentData[i] % 16);
         }
-        for(u8 i=0;i<2;i++)
-        {
-          u8Temp1=u8TempString[i]*10+u8Temp1;
-        }
+      u8Temp1=u8TempString[0]*10+u8TempString[1];
+      u8Temp3=u8TempString[4]*10+u8TempString[5];
+      u8Temp4=u8TempString[6]*10+u8TempString[7];
+      
         /*conventions*/
         switch(u8Temp1)
         {
         case 00 :;break;/*empty message*/
         case 01 :
-          if(u8TempString[2]==0&&u8TempString[3]==1)
+          if(u8TempString[2]=='0'&&u8TempString[3]=='1')
         {
-          if(u8TempString[4]==0&&u8TempString[5]==0)
-          {
-            
-              LedPWM(WHITE, LED_PWM_u8j);
-            
-          }
-          
+              LedPWM(u8Temp3,u8Temp4);
+              if(u8TempString[8]==1)
+              {
+                LedOff(ORANGE);
+              }
+              
         }
         else if(u8TempString[2]==0&&u8TempString[3]==2)
         {
