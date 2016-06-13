@@ -220,7 +220,7 @@ bool AntChannelConfig(bool bMaster_)
   /* Adjust the channel type if configuration for a slave device */
   if(!bMaster_)
   {
-    au8ANTAssignChannel0[3] = CHANNEL_TYPE_SLAVE;
+    au8ANTAssignChannel0[3] = CHANNEL_TYPE_SHARED_SLAVE;
     G_stAntSetupData.AntChannelType = CHANNEL_TYPE_SLAVE;
   }
   
