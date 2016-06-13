@@ -226,7 +226,7 @@ static void UserAppSM_ChannelOpen(void)
   static u8 au8TickMessage[] = "EVENT x\n\r";  /* "x" at index [6] will be replaced by the current code */
   static u8 au8DataContent[] = "xxxxxxxxxxxxxxxx";
   static u8 au8LastAntData[ANT_APPLICATION_MESSAGE_BYTES] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-  static u8 au8TestMessage[] = {0, 0, 0, 0, 0, 0, 0, 0};
+  static u8 au8TestMessage[] = {0,0,0,0,0,0,0,0};
   static u8 u8flag=1;
   bool bGotNewData;
 
@@ -273,9 +273,22 @@ static void UserAppSM_ChannelOpen(void)
       }
       if(bGotNewData)
       {
+
+        #ifdef MPG1
         LCDClearChars(LINE2_START_ADDR, 20); 
-        LCDMessage(LINE2_START_ADDR, au8DataContent);
-        AntQueueBroadcastMessage(au8DataContent);
+        LCDMessage(LINE2_START_ADDR, au8DataContent); 
+#endif /* MPG1 */    
+
+        /* Update our local message counter and send the message back */
+       if(au8DataContent[0]=='0'&&au8DataContent[1]=='0')
+        {
+         au8TestMessage[0]++;
+         AntQueueBroadcastMessage(au8TestMessage);
+        }
+  
+  
+    
+        
         /* Update our local message counter and send the message back */
 
       } /* end if(bGotNewData) */
