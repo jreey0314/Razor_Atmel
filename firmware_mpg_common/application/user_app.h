@@ -73,10 +73,10 @@ static void UserAppSM_Idle(void);
 static void UserAppSM_WaitChannelOpen(void);
 static void UserAppSM_ChannelOpen(void);
 static void UserAppSM_WaitChannelClose(void);
-
+static void UserAppSM_start(void);
 static void UserAppSM_Error(void);         
 static void UserAppSM_FailedInit(void);        
-
+static void UserAppSM_LedMode(void);
 
 #endif /* __USER_APP_H */
 
