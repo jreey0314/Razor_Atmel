@@ -33,7 +33,7 @@ Constants / Definitions
 #define ANT_SERIAL_LO_USERAPP           (u8)0                 /* Low byte of two-byte Device # */
 #define ANT_SERIAL_HI_USERAPP           (u8)0                 /* High byte of two-byte Device # */
 #define ANT_DEVICE_TYPE_USERAPP         (u8)66                /* 1 - 255 */
-#define ANT_TRANSMISSION_TYPE_USERAPP   (u8)0                 /* 1-127 (MSB is pairing bit) */
+#define ANT_TRANSMISSION_TYPE_USERAPP   (u8)2                 /* 1-127 (MSB is pairing bit) */
 #define ANT_CHANNEL_PERIOD_LO_USERAPP   (u8)0x00              /* Low byte of two-byte channel period 0x0001 - 0x7fff */
 #define ANT_CHANNEL_PERIOD_HI_USERAPP   (u8)0x20              /* High byte of two-byte channel period */
 #define ANT_FREQUENCY_USERAPP           (u8)66                /* 2400MHz + this number 0 - 99 */
@@ -78,6 +78,17 @@ static void UserAppSM_Error(void  );
 static void UserAppSM_FailedInit(void);        
 static void UserAppSM_LedMode(void);
 static void UserAppSM_control(void);
+static void UserAppSM_forward(void);
+static void UserAppSM_ReactCMD();
+static void UserAppSM_Turnofflight();
+static void UserAppSM_TurnonPWM();
+static void UserAppSM_TurnonBlink();
+static void UserAppSM_LCDDisplay();
+static void UserAppSM_Buzzer();
+static void UserAppSM_TurnOffBuzzer();
+static void UserAppSM_TurnOnBuzzerForTime();
+static void UserAppSM_ReSet();
+static void UserAppSM_CloseChannel();
 #endif /* __USER_APP_H */
 
 
