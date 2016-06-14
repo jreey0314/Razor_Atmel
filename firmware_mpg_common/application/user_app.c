@@ -230,6 +230,7 @@ static void UserAppSM_ChannelOpen(void)
   static bool bflag=1;
   bool bGotNewData;
   static bool Wait = 0;
+  static bool bsync =0;
   /* Check for BUTTON0 to close channel */
   if(WasButtonPressed(BUTTON0))
   {
@@ -259,46 +260,69 @@ static void UserAppSM_ChannelOpen(void)
     {
       UserApp_u32DataMsgCount++;
       /* Check if the new data is the same as the old data and update as we go */
+      for(u8 i = 0; i < ANT_APPLICATION_MESSAGE_BYTES; i++)
+      {
+          au8DataContent[2 * i] = HexToASCIICharUpper(G_au8AntApiCurrentData[i] / 16);
+          au8DataContent[2 * i + 1] = HexToASCIICharUpper(G_au8AntApiCurrentData[i] % 16);
+      }
       
+      LCDClearChars(LINE2_START_ADDR, 20); 
+      LCDMessage(LINE2_START_ADDR, au8DataContent); 
+      if(bsync)
+      {
+        bsync= 0;
+        au8TestMessage[0] = u8ADDR;
+        au8TestMessage[7] = 0xff ;
+        AntQueueBroadcastMessage(au8TestMessage);
+      }
       
-       if(G_au8AntApiCurrentData[0]== 0 && bflag && G_au8AntApiCurrentData[1] != 0 )
+      if(Wait && (G_au8AntApiCurrentData[7] == u8ADDR))
+      {
+        Wait = 0;
+        bsync = 1;
+        au8TestMessage[0] = 0;
+        au8TestMessage[7] = 0xff;
+        AntQueueBroadcastMessage(au8TestMessage);
+      }
+      
+       if(G_au8AntApiCurrentData[0]== 0 && bflag && G_au8AntApiCurrentData[7] != 0 )
         {
-          u8ADDR = G_au8AntApiCurrentData[1];
-          au8TestMessage[0] = G_au8AntApiCurrentData[1];
+          u8ADDR = G_au8AntApiCurrentData[7];
+          au8TestMessage[0] = u8ADDR;
+          au8TestMessage[7] = 0xff;
           Wait = 1;
           bflag = 0;
           AntQueueBroadcastMessage(au8TestMessage);
+          
+          
         }
         else if(!bflag)
         {
-          if((G_au8AntApiCurrentData[0] == u8ADDR) && (G_au8AntApiCurrentData[2] == 0xFF))
-            //UserApp_StateMachine = ?
+          if(G_au8AntApiCurrentData[0] == u8ADDR)
+          {
+            //UserApp_StateMachine = UserAppSM_control;
             LedOn(RED);
+          }
         }
-       
-       switch(G_au8AntApiCurrentData[1])
-       {
-       case '0':UserAppSM_start();break;
+    
       
-       case '1':break;
-       default:break;
-       }
+      
+      
+      
        
        
        
        //AntQueueBroadcastMessage(au8TestMessage);
-    } /* end if(G_eAntApiCurrentMessageClass == ANT_DATA) */
+  
+ } /* end if(G_eAntApiCurrentMessageClass == ANT_DATA) */
     
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
     {
-      if(Wait)
-      {
-        AntQueueBroadcastMessage(au8TestMessage);
-        Wait = 0;
-      }
+      
     } /* end else if(G_eAntApiCurrentMessageClass == ANT_TICK) */
     
-  } /* end AntReadData() */
+  }
+/* end AntReadData() */
   
   /* A slave channel can close on its own, so explicitly check channel status */
   if(AntRadioStatus() != ANT_OPEN)
@@ -314,29 +338,37 @@ static void UserAppSM_ChannelOpen(void)
   } /* if(AntRadioStatus() != ANT_OPEN) */
       
 } /* end UserAppSM_ChannelOpen() */
-static void UserAppSM_start(void)
+static void UserAppSM_control(void)
 {
-  switch(G_au8AntApiCurrentData[2])
+  if(G_au8AntApiCurrentData[1]==1)
   {
-  case '1':UserAppSM_LedMode();break;/*signal LED*/
-  case '2':break;
-  case '4':break;
-  case '8':break;
+    LedOn(WHITE);
+    UserApp_StateMachine=UserAppSM_start;
   }
   
+  
+}
+static void UserAppSM_start(void)
+{
+  if(G_au8AntApiCurrentData[2]==1)
+  {
+    LedOn(YELLOW);
+    UserApp_StateMachine=UserAppSM_LedMode;/*signal LED*/
+  }
 }
 
 
 static void UserAppSM_LedMode(void)
 {
-  switch(G_au8AntApiCurrentData[3])
+  
+  if(G_au8AntApiCurrentData[3]==1)
   {
-  case '1':LedPWM(G_au8AntApiCurrentData[4], G_au8AntApiCurrentData[5]);break;/*PWM mode*/
-  case '2':break;
-  case '4':break;
-  case '8':break;
-    
+    LedPWM(G_au8AntApiCurrentData[4], G_au8AntApiCurrentData[5]);/*PWM mode*/
+    LedOn(CYAN);
   }
+ 
+    
+  
 }
 
 
