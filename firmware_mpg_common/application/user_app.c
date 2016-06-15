@@ -81,31 +81,32 @@ static bool bPaired = 0;
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
-u8 u8i = 0;
-u8 u8j = 0;
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Public functions                                                                                                   */
 /*--------------------------------------------------------------------------------------------------------------------*/
-u8 StringToHex(u8* ptr_)
+u8 StringToHex(u8* ptr_)/*read ASCII and turn it into a two-byte-number*/
 {
   u8 u8TempVar;
   u8 u8Ans;
   u8TempVar = *ptr_;
-  if(u8TempVar > 96 && u8TempVar < 103)
+  if(u8TempVar > 96 && u8TempVar < 103)        /*if the first HEX number is a~f*/
   {
-    u8Ans = (u8TempVar-87) * 10;
+    u8Ans = (u8TempVar-87) * 10;               /*minus 87 to become what it used to be*/     
   }
-  else if(u8TempVar > 64 && u8TempVar < 71)
+  else if(u8TempVar > 64 && u8TempVar < 71)    /*if the first HEX number is a~f*/
   {
-    u8Ans = (u8TempVar-55) * 10;
+    u8Ans = (u8TempVar-55) * 10;               /*minus 55 to become what it used to be*/ 
   }
-  else if(u8TempVar > 47 && u8TempVar < 58)
+  else if(u8TempVar > 47 && u8TempVar < 58)    /*if the first HEX number is 0~9*/
   {
-    u8Ans = (u8TempVar-48) * 10;
+    u8Ans = (u8TempVar-48) * 10;               /*minus 48 to become what it used to be*/ 
   }
+                                               /*the first number*10 is the high position*/
+  u8TempVar = *(ptr_ + 1);                     /*select the second byte*/
+
+
   
-  u8TempVar = *(ptr_ + 1);
-  if(u8TempVar > 96 && u8TempVar < 103)
+  if(u8TempVar > 96 && u8TempVar < 103)        /*follow the upper approach to select the second byte*/
   {
     u8Ans += u8TempVar - 87;
   }
@@ -118,10 +119,10 @@ u8 StringToHex(u8* ptr_)
     u8Ans += u8TempVar - 48;
   }
   
-  return u8Ans;
+  return u8Ans;                                /*return a two-byte-number*/
 }
 
-u32 StringTou32Num(u8 *ptr)
+u32 StringTou32Num(u8 *ptr)                    /*when it is a unknown byte,turn it into a decimal number*/
 {
   u32 u32Ans = 0;
   while(*ptr > 47 && *ptr < 58)
@@ -151,12 +152,12 @@ Promises:
 */
 void UserAppInitialize(void)
 {
-  u8 au8WelcomeMessage[] = "ANT SLAVE DEMO";
-  u8 au8Instructions[] = "B0 toggles radio";
+  u8 au8WelcomeMessage[] = "ANT SLAVE DEMO";              /*Display on the lCD*/
+  u8 au8Instructions[] = "B0 toggles radio";              /*Display on the lCD*/
   
-  /* Clear screen and place start messages */
+  
 #ifdef MPG1
-  LCDCommand(LCD_CLEAR_CMD);
+  LCDCommand(LCD_CLEAR_CMD);                              /* Clear screen and place start messages */
   LCDMessage(LINE1_START_ADDR, au8WelcomeMessage); 
   LCDMessage(LINE2_START_ADDR, au8Instructions); 
 
@@ -256,7 +257,8 @@ static void UserAppSM_WaitChannelOpen(void)
   if(AntRadioStatus() == ANT_OPEN)
   {
     LedOn(GREEN);
-    if(!bPaired)
+  /*when it is not pairing,turn to UserAppSM_control statement,when it is pairing,turn to the channel open statement*/
+    if(!bPaired)         
       UserApp_StateMachine = UserAppSM_ChannelOpen;
     else
       UserApp_StateMachine = UserAppSM_control;
@@ -278,13 +280,9 @@ static void UserAppSM_WaitChannelOpen(void)
 /* Channel is open, so monitor data */
 static void UserAppSM_ChannelOpen(void)
 {
-  static u8 u8LastState = 0xff;
   static u8 au8TickMessage[] = "EVENT x\n\r";  /* "x" at index [6] will be replaced by the current code */
   static u8 au8DataContent[] = "xxxxxxxxxxxxxxxx";
-  static u8 au8LastAntData[ANT_APPLICATION_MESSAGE_BYTES] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-  static u8 au8TestMessage[] = {0,0,0,0,0,0,0,0};
-  static u8 au8StateMessage[] = {0,0,0,0,0,0,0,0};
-
+  static u8 au8TestMessage[] = {0,0,0,0,0,0,0,0}; 
   bool bGotNewData;
   static bool Wait = 0;
   static bool bsync =0;
@@ -297,7 +295,7 @@ static void UserAppSM_ChannelOpen(void)
     
     /* Queue close channel and change LED to blinking green to indicate channel is closing */
     AntCloseChannel();
-    u8LastState = 0xff;
+   
     LedOff(YELLOW);
     LedOff(BLUE);
     LedBlink(GREEN, LED_2HZ);
@@ -306,8 +304,7 @@ static void UserAppSM_ChannelOpen(void)
     UserApp_u32Timeout = G_u32SystemTime1ms;
     UserApp_StateMachine = UserAppSM_WaitChannelClose;
   } /* end if(WasButtonPressed(BUTTON0)) */
-  
-   
+
   /* Always check for ANT messages */
   if( AntReadData() )
   {
@@ -315,15 +312,19 @@ static void UserAppSM_ChannelOpen(void)
     if(G_eAntApiCurrentMessageClass == ANT_DATA)
     {
       UserApp_u32DataMsgCount++;
-      /* Check if the new data is the same as the old data and update as we go */
-      for(u8 i = 0; i < ANT_APPLICATION_MESSAGE_BYTES; i++)
+     /*turn received message into two-byte-HEX-number*/
+      for(u8 i = 0; i < ANT_APPLICATION_MESSAGE_BYTES; i++) 
       {
           au8DataContent[2 * i] = HexToASCIICharUpper(G_au8AntApiCurrentData[i] / 16);
           au8DataContent[2 * i + 1] = HexToASCIICharUpper(G_au8AntApiCurrentData[i] % 16);
       }
-      
+      /*clear screen and display received message*/
       LCDClearChars(LINE2_START_ADDR, 20); 
-      LCDMessage(LINE2_START_ADDR, au8DataContent); 
+      LCDMessage(LINE2_START_ADDR, au8DataContent);
+      /*convention between the master and the slave*/
+      
+      
+      /*third return a message whose first byte is its address*/
       if(bsync)
       {
         bsync= 0;
@@ -333,7 +334,7 @@ static void UserAppSM_ChannelOpen(void)
         AntQueueBroadcastMessage(au8TestMessage);
         UserApp_StateMachine = UserAppSM_control;
       }
-      
+      /*second return an address message to the master to allocate the address*/
       if(Wait && (G_au8AntApiCurrentData[7] == u8ADDR))
       {
         Wait = 0;
@@ -343,29 +344,35 @@ static void UserAppSM_ChannelOpen(void)
         au8TestMessage[7] = 0xff;
         AntQueueBroadcastMessage(au8TestMessage);
       }
-      
-       if(G_au8AntApiCurrentData[0]== 0 && bflag && G_au8AntApiCurrentData[7] != 0 )
+   /*if the first two byte data from the master is 00 and the 7th byte is not 0,the slave is allocated with an address*/
+       if(G_au8AntApiCurrentData[0]== 0 && bflag && G_au8AntApiCurrentData[7] != 0 ) 
         {
+    /*define address equals the 7th byte data from the master*/
           u8ADDR = G_au8AntApiCurrentData[7];
-          au8TestMessage[0] = u8ADDR;
+                   
           UserApp_u8TempMessage[0]=u8ADDR;
           au8TestMessage[7] = 0xff;
           Wait = 1;
           bflag = 0;
+    /* first return a react to the master*/
           AntQueueBroadcastMessage(au8TestMessage);
         }
-       //AntQueueBroadcastMessage(au8TestMessage);
+    
  } /* end if(G_eAntApiCurrentMessageClass == ANT_DATA) */
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
     {
     } /* end else if(G_eAntApiCurrentMessageClass == ANT_TICK) */
   }
 /* end AntReadData() */
+  
+  /*not at pairing statement,enter into control statement*/  
   if(bPaired)
   {
-    
+      Wait = 0;
+      bsync =0;
+      bflag=1;
       UserApp_StateMachine = UserAppSM_control;
-      LedOn(RED);
+      LedOn(RED);/*for observation*/
   }
   
   /* A slave channel can close on its own, so explicitly check channel status */
@@ -375,7 +382,7 @@ static void UserAppSM_ChannelOpen(void)
     LedBlink(GREEN, LED_2HZ);
     LedOff(BLUE);
 #endif /* MPG1 */
-    u8LastState = 0xff;
+  
     
     UserApp_u32Timeout = G_u32SystemTime1ms;
     UserApp_StateMachine = UserAppSM_WaitChannelClose;
@@ -388,15 +395,14 @@ static void UserAppSM_ChannelOpen(void)
 
 static void UserAppSM_control(void)
 {
-  static u8 u8LastState = 0xff;
-  static u8 au8DataContent[] = "xxxxxxxxxxxxxxxx";
-  static u8 au8LastAntData[ANT_APPLICATION_MESSAGE_BYTES] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-  static u8 au8TestMessage[] = {0,0,0,0,0,0,0,0};
-  static u8 au8StateMessage[] = {0,0,0,0,0,0,0,0};
+ 
+  static u8 au8DataContent[] = "xxxxxxxxxxxxxxxx";  /*read the strings from the master*/
+  static u8 au8TestMessage[] = {0,0,0,0,0,0,0,0};   /*return to the master*/
   static bool bReceiving = 0;
-  static u8 u8CommendTime=0;
-  static u8 au8String[]="xx";
-  u8 u8CurrentReadingPlace = 0;
+  static u8 u8CommendTime=0;                        /*the number of commend strings*/
+  static u8 au8String[]="xx";                       /*get address*/
+  u8 u8CurrentReadingPlace = 0;                     /*current reading place*/
+  static bool bRespond = 1;
   /* Check for BUTTON0 to close channel */
   if(WasButtonPressed(BUTTON0))
   {
@@ -404,12 +410,21 @@ static void UserAppSM_control(void)
     ButtonAcknowledge(BUTTON0);
     
     /* Queue close channel and change LED to blinking green to indicate channel is closing */
-    AntCloseChannel();
-    u8LastState = 0xff;  
+    AntCloseChannel(); 
     /* Set timer and advance states */
     UserApp_u32Timeout = G_u32SystemTime1ms;
     UserApp_StateMachine = UserAppSM_WaitChannelClose;
   } /* end if(WasButtonPressed(BUTTON0)) */
+  if(WasButtonPressed(BUTTON3))
+  {
+    /* Got the button, so complete one-time actions before next state */
+    ButtonAcknowledge(BUTTON3);
+    u8ADDR = 0;
+    bPaired = 0;
+    LCDClearChars(LINE2_START_ADDR, 21);
+    UserApp_StateMachine = UserAppSM_ChannelOpen;
+
+  }
   
    
   /* Always check for ANT messages */
@@ -426,64 +441,67 @@ static void UserAppSM_control(void)
           au8DataContent[2 * i + 1] = HexToASCIICharUpper(G_au8AntApiCurrentData[i] % 16);
       }
       LCDClearChars(LINE2_START_ADDR, 20); 
-      LCDMessage(LINE2_START_ADDR, au8DataContent);
-      au8String[0] = HexToASCIICharUpper(u8ADDR / 16);
-      au8String[01] = HexToASCIICharUpper(u8ADDR % 16);
+      LCDMessage(LINE2_START_ADDR, au8DataContent); 
+      au8String[0] = HexToASCIICharUpper(u8ADDR / 16);    /*display on the last two grid*/
+      au8String[1] = HexToASCIICharUpper(u8ADDR % 16);
       LCDMessage(LINE2_START_ADDR+18,au8String);
+      /*if the master's message is for this device ,read the strings*/
       
       if(G_au8AntApiCurrentData[u8CurrentReadingPlace++] == u8ADDR)
       {
-        
-        bool bGetEnd = 0;
-        u8j++;
+        UserApp_u8TempMessage[6]=0;
+        /*if the byte is 0xfc,which means start a commend string*/
+        if(G_au8AntApiCurrentData[u8CurrentReadingPlace] == 0xAC && !bRespond)
+        {
+          bRespond=1;
+          UserApp_u8TempMessage[6]=1;
+        }
         if((G_au8AntApiCurrentData[u8CurrentReadingPlace] == 0xFc) && !bReceiving)
         {
           bReceiving = 1;
         }
+        /*if the first byte is CC,continue to save the string*/
         else if(bReceiving && (G_au8AntApiCurrentData[u8CurrentReadingPlace] != 0xcc))
         {
           UserApp_u8MessageCount = 0;
-          bGetNewCMD = 0;
         }
         u8CurrentReadingPlace++;
+        
         if(bReceiving)
         {
           while(u8CurrentReadingPlace < 8)
           {
             if(G_au8AntApiCurrentData[u8CurrentReadingPlace] != 0xCF)
             {
+              /*read the data*/
               UserApp_u8Message[UserApp_u8MessageCount++] = G_au8AntApiCurrentData[u8CurrentReadingPlace++];
             }
             else
             {
-              u8CommendTime++;
-              bGetEnd = 1;
+              u8CommendTime++;  
               UserApp_u8Message[UserApp_u8MessageCount] = G_au8AntApiCurrentData[u8CurrentReadingPlace];
               bReceiving = 0;
-              bGetNewCMD = 1;
+              bRespond = 0;
               LedOff(RED);
-              UserApp_StateMachine = UserAppSM_ReactCMD;
               UserApp_u8TempMessage[0]=u8ADDR;
               UserApp_u8TempMessage[1]=UserApp_u8Message[0];
-              
+              UserApp_u8TempMessage[6]=1;
+              UserApp_StateMachine = UserAppSM_ReactCMD;/*start run the commend*/
               break;
+              /*the string has been received*/
             }
           }
-          
         }
-        
-        
       }
-    
       UserApp_u8TempMessage[7]=u8CommendTime;
-      AntQueueBroadcastMessage(UserApp_u8TempMessage);
+      
+      AntQueueBroadcastMessage(UserApp_u8TempMessage);/*return commend time to the master*/
     } 
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
     {      
     } /* end else if(G_eAntApiCurrentMessageClass == ANT_TICK) */
   }
-      
-       //AntQueueBroadcastMessage(au8TestMessage);
+    
   /* end if(G_eAntApiCurrentMessageClass == ANT_DATA) */
  
     
@@ -498,88 +516,100 @@ static void UserAppSM_control(void)
     LedBlink(GREEN, LED_2HZ);
     LedOff(BLUE);
 #endif /* MPG1 */
-    u8LastState = 0xff;
     
     UserApp_u32Timeout = G_u32SystemTime1ms;
     UserApp_StateMachine = UserAppSM_WaitChannelClose;
   } /* if(AntRadioStatus() != ANT_OPEN) */
       
 } /* end UserAppSM_ChannelOpen() */
-
+/*read the string to commend the board*/
 static void UserAppSM_ReactCMD()
-{
-  u8i++;
-  
-    if(UserApp_u8Message[0]==0)
+{ 
+  /*turn on a LED function*/
+    if(UserApp_u8Message[0]==0)                   
   {
     UserApp_StateMachine=UserAppSM_start;
   }
-  else if(UserApp_u8Message[0]==1)
+  /*turn off a LED function*/
+  else if(UserApp_u8Message[0]==1)                
   {
     UserApp_StateMachine=UserAppSM_Turnofflight;
   }
-  else if(UserApp_u8Message[0]==2)
+  /*turn on a PWM mode LED function*/
+  else if(UserApp_u8Message[0]==2)                
   {
     UserApp_StateMachine=UserAppSM_TurnonPWM;
   }
-  else if(UserApp_u8Message[0]==3)
+  /*turn on a LED Blink mode*/
+  else if(UserApp_u8Message[0]==3)                
   {
     UserApp_StateMachine=UserAppSM_TurnonBlink;
   }
-  else if(UserApp_u8Message[0]==4)
+  /*Display the massage on the LCD*/
+  else if(UserApp_u8Message[0]==4)                
   {
-    UserApp_StateMachine=UserAppSM_LCDDisplay;
- //   
+    UserApp_StateMachine=UserAppSM_LCDDisplay; 
   }
-  else if(UserApp_u8Message[0]==5)
+  /*turn on a Buzzer at a frequency*/
+  else if(UserApp_u8Message[0]==5)                
   {
     UserApp_StateMachine=UserAppSM_Buzzer;
-  }
-   else if(UserApp_u8Message[0]==6)
+  } 
+  /*turn off a Buzzer*/
+   else if(UserApp_u8Message[0]==6)              
   {
     UserApp_StateMachine=UserAppSM_TurnOffBuzzer;
   }
-  else if(UserApp_u8Message[0]==7)
+  /*turn on a Buzzer for some time*/
+  else if(UserApp_u8Message[0]==7)                
   {
     UserApp_StateMachine=UserAppSM_TurnOnBuzzerForTime;
-  }
-  else if(UserApp_u8Message[0]==8)
+  } 
+  /*reset the board*/
+  else if(UserApp_u8Message[0]==8)               
   {
     UserApp_StateMachine=UserAppSM_ReSet;
   }
-  else if(UserApp_u8Message[0]==9)
+  /*close the channel*/
+  else if(UserApp_u8Message[0]==9)                
   {
     UserApp_StateMachine=UserAppSM_CloseChannel;
   }
-  UserApp_u8MessageCount = 0;
+  /*initialize Counter*/
+  UserApp_u8MessageCount = 0;                     
   UserApp_u8Message[UserApp_u8MessageCount] = 0xCF;
+  
 }
 
 
-
-static void UserAppSM_start(void)
+/*signal LED*/
+static void UserAppSM_start(void)                 
 {  
   
     LedOn(UserApp_u8Message[1]-48);
-    UserApp_StateMachine=UserAppSM_control;/*signal LED*/  
+    UserApp_StateMachine=UserAppSM_control;  
 }
+/*turn off a LED function*/
 static void UserAppSM_Turnofflight()
 {
   LedOff(UserApp_u8Message[1]-48);
-  UserApp_StateMachine=UserAppSM_control;/*signal LED*/   
+  UserApp_StateMachine=UserAppSM_control;   
 }
+/*turn on a PWM mode LED function*/
 static void UserAppSM_TurnonPWM()
 {
   static u8 u8TempNumber=0;
-  
-  u8TempNumber=StringToHex(&UserApp_u8Message[3]);
-  LedPWM(UserApp_u8Message[1]-48,u8TempNumber);/*PWM mode*/
+  /*turn string into HEX number*/
+  u8TempNumber=StringToHex(&UserApp_u8Message[3]);       
+  LedPWM(UserApp_u8Message[1]-48,u8TempNumber);
   UserApp_StateMachine=UserAppSM_control;
 }
+/*turn on a LED Blink mode*/
 static void UserAppSM_TurnonBlink()
 {
   static u8 u8tempmessage=0;
-  switch(UserApp_u8Message[3])
+  /*switch the commend to set the frequency*/
+  switch(UserApp_u8Message[3])       
   {
   case '0':u8tempmessage=1000;break;
   case '1':u8tempmessage=500;break;
@@ -591,11 +621,12 @@ static void UserAppSM_TurnonBlink()
   LedBlink(UserApp_u8Message[1]-48,u8tempmessage);
   UserApp_StateMachine=UserAppSM_control;
 }
+/*Display the massage on the LCD*/
 static void UserAppSM_LCDDisplay()
 {
     static u8 u8TempString[40];
     u8 i = 1;
-    while(UserApp_u8Message[i] != 0xCF)
+    while(UserApp_u8Message[i] != 0xCF)    /*Display the string*/
     {
       u8TempString[i-1] = UserApp_u8Message[i];
       i++;
@@ -605,12 +636,12 @@ static void UserAppSM_LCDDisplay()
     LCDMessage(LINE1_START_ADDR, u8TempString); 
     UserApp_StateMachine=UserAppSM_control;
 }
-
+/*turn on a Buzzer at a frequency*/
 static void UserAppSM_Buzzer()
 {
   if(UserApp_u8Message[1]=='1')
   {
-  PWMAudioSetFrequency(BUZZER1,StringTou32Num(&UserApp_u8Message[3]));
+  PWMAudioSetFrequency(BUZZER1,StringTou32Num(&UserApp_u8Message[3]));/*turn the string into a two-byte-number*/
   PWMAudioOn(BUZZER1);
   }
   else if(UserApp_u8Message[1]=='2')
@@ -620,6 +651,7 @@ static void UserAppSM_Buzzer()
   }
   UserApp_StateMachine=UserAppSM_control;
 }
+/*turn off a Buzzer*/
 static void UserAppSM_TurnOffBuzzer()
 {
    if(UserApp_u8Message[1]=='1')
@@ -634,7 +666,7 @@ static void UserAppSM_TurnOffBuzzer()
 }
 
 
-
+/*turn on a Buzzer for some time*/
 static void UserAppSM_TurnOnBuzzerForTime()
 {
   static u32 u32LastTime= 0 ;
@@ -648,7 +680,7 @@ static void UserAppSM_TurnOnBuzzerForTime()
     { 
       i++;
     }
-    u32LastTime = StringTou32Num(&UserApp_u8Message[i+1]);
+    u32LastTime = StringTou32Num(&UserApp_u8Message[i+1]);/*get the number  of the time*/
     if(UserApp_u8Message[1]=='1')
     {
       PWMAudioSetFrequency(BUZZER1,StringTou32Num(&UserApp_u8Message[3]));
@@ -661,14 +693,14 @@ static void UserAppSM_TurnOnBuzzerForTime()
     }
   }
   u32Counter++;
-  if(u32Counter == u32LastTime)
+  if(u32Counter == u32LastTime)/*last for some time*/
   {
     u32Counter = 0;
     bSetted = 0;
     UserApp_StateMachine=UserAppSM_TurnOffBuzzer;
   }
 }
-static void UserAppSM_ReSet()
+static void UserAppSM_ReSet()/*reset the board*/
 {
   
   LedOff(WHITE);
@@ -685,28 +717,13 @@ static void UserAppSM_ReSet()
   LCDMessage(LINE1_START_ADDR,"Reseted!");
   UserApp_StateMachine=UserAppSM_control;
 }
-static void UserAppSM_CloseChannel()
+static void UserAppSM_CloseChannel() /*close the channel*/
 {
   AntCloseChannel();
     /* Set timer and advance states */
   UserApp_u32Timeout = G_u32SystemTime1ms;
   UserApp_StateMachine = UserAppSM_WaitChannelClose;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
