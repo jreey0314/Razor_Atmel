@@ -207,7 +207,7 @@ Promises:
 */
 bool AntChannelConfig(bool bMaster_)
 {
-  u8 au8ANTAssignChannel0[]    = {MESG_ASSIGN_CHANNEL_SIZE, MESG_ASSIGN_CHANNEL_ID, G_stAntSetupData.AntChannel, CHANNEL_TYPE_MASTER, G_stAntSetupData.AntNetwork, CS};
+  u8 au8ANTAssignChannel0[]    = {MESG_ASSIGN_CHANNEL_SIZE, MESG_ASSIGN_CHANNEL_ID, G_stAntSetupData.AntChannel, CHANNEL_TYPE_SHARED_SLAVE, G_stAntSetupData.AntNetwork, CS};
   u8 au8ANTSetChannelID0[]     = {MESG_CHANNEL_ID_SIZE, MESG_CHANNEL_ID_ID, G_stAntSetupData.AntChannel, G_stAntSetupData.AntSerialLo, G_stAntSetupData.AntSerialHi, G_stAntSetupData.AntDeviceType, G_stAntSetupData.AntTransmissionType, CS};
   u8 au8ANTSetChannelPeriod0[] = {MESG_CHANNEL_MESG_PERIOD_SIZE, MESG_CHANNEL_MESG_PERIOD_ID, G_stAntSetupData.AntChannel, G_stAntSetupData.AntChannelPeriodLo, G_stAntSetupData.AntChannelPeriodHi, CS};
   u8 au8ANTSetChannelRFFreq0[] = {MESG_CHANNEL_RADIO_FREQ_SIZE, MESG_CHANNEL_RADIO_FREQ_ID, G_stAntSetupData.AntChannel, G_stAntSetupData.AntFrequency, CS};           
